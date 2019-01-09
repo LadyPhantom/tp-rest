@@ -94,8 +94,8 @@
       <ObjectId>2200</ObjectId>
       <Comment>standard public schema</Comment>
       <Owner>postgres</Owner>
-      <IntrospectionTimestamp>2019-01-08.09:10:24.127</IntrospectionTimestamp>
-      <IntrospectionStateNumber>1014</IntrospectionStateNumber>
+      <IntrospectionTimestamp>2019-01-09.09:35:47.726</IntrospectionTimestamp>
+      <IntrospectionStateNumber>1119</IntrospectionStateNumber>
       <Current>1</Current>
       <Visible>1</Visible>
     </schema>
@@ -153,7 +153,7 @@
     <sequence id="27" parent="19" name="genres_id_seq">
       <ObjectId>57345</ObjectId>
       <Owner>postgres</Owner>
-      <StateNumber>1008</StateNumber>
+      <StateNumber>1119</StateNumber>
       <SequenceIdentity>1</SequenceIdentity>
       <BelongsToColumn>1</BelongsToColumn>
       <CacheSize>1</CacheSize>

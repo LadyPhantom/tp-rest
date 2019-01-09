@@ -54,6 +54,15 @@ public class GenreRestController {
         return genreManager.save(genre);
     }
 
+    /*@PostMapping("")
+    public Genre add(@Valid @RequestBody Genre genre, BidingResult result){
+        if (genre.getName().isEmpty()) throw new IllegalArgumentException("Name is empty");
+        return genreManager.save(genre);
+        if (result.hasError()){
+        return ... ;
+        }
+    }
+    */
     /**
      *
      * @param genre

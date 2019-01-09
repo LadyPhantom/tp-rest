@@ -9,187 +9,177 @@
 <div th:include="fragments/layout :: header-page"></div>
 
 <div class="ui modal">
-    <div class="Header">
-        Modification/Ajout d'un genre
-    </div>
-    <div class="ui padded form">
-        <input type="hidden" name="id" id="id-genre">
-        <div class="fourteen wide field">
-            <input type="text" name="name" th:value="*{name}" id="name-genre">
+    <div class="ui container padded">
+        <div class="Header">
+            <h3>Genre</h3>
         </div>
-        <div class="actions">
-
-                <div class="circular ui green icon button" onclick="validForm()">
+        <div class="ui padded form">
+            <input type="hidden" name="id" id="id-genre">
+            <div class="fourteen wide field">
+                <input type="text" name="name" id="name-genre">
+            </div>
+            <div class="actions">
+                <div class="circular ui green icon button" onclick="addGenre()" id="add-button">
+                    <i class="white plus icon"></i>
+                </div>
+                <div class="circular ui green icon button" onclick="updateGenre()" id="mod-button">
                     <i class="white check icon icon"></i>
                 </div>
-                <div class="circular ui icon red button" onclick="eraseGenre()">
-                    <i class="white close icon icon"></i>
+                <div class="circular ui icon red button" onclick="eraseGenre()" id="del-button">
+                    <i class="white minus icon"></i>
                 </div>
-                <div class="circular ui icon blue button" onclick="closeDialog()" th:text="Annuler">
+                <div class="circular ui icon blue button" onclick="exitDialog()" id="exit-button" th:text="Annuler">
                 </div>
 
-
+            </div>
         </div>
     </div>
 </div>
 
-<table class="ui celled table">
-    <thead>
-    <tr>
-        <th>Genre</th>
-        <th>Action</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="genre, rowStat: ${genres}">
-       <!-- <td th:text="${genre.name}" th:id="'genre'+ ${genre.id}">Un genre</td>
-        <td><a class="small circular ui blue icon button"
-               th:onclick="'openDialog(' + ${genre.id}+')'"><i class="small white edit icon"></i>
-        </a></td>-->
-        <td th:text="${genre.name}" th:id="'genre'+ ${genre.id}">Un genre</td>
-        <td class="selectable">
-            <a th:onclick="'openDialog(' + ${genre.id}+')'">Edit
-            </a>
-        </td>
-    </tr>
 
-    <tr>
-        <td>
-            <a class="small circular ui blue icon button"
-                   onclick="openDialog()"><i class="small white plus icon"></i>
-            </a>
-        </td>
-    </tr>
+<table class="ui selectable celled inverted table">
+    <thead>
+        <tr>
+            <th>Genre</th>
+        </tr>
+    </thead>
+    <tbody id="genre-body">
+        <tr id="rgenre-template">
+            <td id="genre-template">un genre</td>
+        </tr>
+        <tr th:each="genre: ${genres}" th:id="'rgenre'+${genre.id}" th:onclick="'openDialogMod(' + ${genre.id}+')'">
+            <td th:text="${genre.name}" th:id="'genre'+ ${genre.id}">Un genre</td>
+        </tr>
     </tbody>
 </table>
 
+<div class="ui primary button" onclick="openDialogAdd()">
+    Ajouter un genre
+</div>
+
 <div th:include="fragments/layout :: footer-js"></div>
+
 <script type="application/javascript">
     $('#menu-genres').addClass("active");
     $('.ui.dropdown').dropdown();
     $('.ui.modal').modal();
+    $('#rgenre-template').hide();
 
 
-    function openDialog(idGenre) {
-        if(idGenre != null){
-            eltIdGenre = 'genre' + idGenre;
-            elt = document.getElementById(eltIdGenre);
-            console.log(elt.textContent + " (id= '" + eltIdGenre + "')");
-            document.getElementById('id-genre').value = idGenre;
-            document.getElementById('name-genre').value = document.getElementById(eltIdGenre).textContent;
-            $('.ui.modal').modal('setting', 'closable', false).modal('show');
-        }else{
-            genreToAddDomNode = document.getElementsByClassName('ui celled table');
-            console.log(genreToAddDomNode);
 
-            $('.ui.modal').modal('setting', 'closable', false).modal('show');
-        }
-
+    function openDialogMod(idGenre) {
+        $('#id-genre').val(idGenre);
+        $('#name-genre').val($('#genre' + idGenre).text());
+        $('#add-button').hide();
+        $('#mod-button').show();
+        $('#del-button').show();
+        $('.ui.modal').modal('show');
     }
 
-    function closeDialog(){
-        $('.ui.modal').modal('hide');
+    function openDialogAdd() {
+        $('#id-genre').val(0);
+        $('#name-genre').val("");
+        $('#add-button').show();
+        $('#mod-button').hide();
+        $('#del-button').hide();
+        $('.ui.modal').modal('show');
     }
 
-    function validForm() {
-
-        genreId = document.getElementById('id-genre').value;
-        genreName = document.getElementById('name-genre').value;
-
-        // if (genreId != ""){
+    function addGenre() {
         $('.ui.modal').modal('hide');
         genreVal = {
-            "id": document.getElementById('id-genre').value,
-            "name": document.getElementById('name-genre').value
+            //  "id": $('#id-genre').val(),
+            "name": $('#name-genre').val()
         };
+        $.ajax({
+            url: '/api/genre',
+            type: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: onSuccessAddNameGenre,
+            error: onErrorOnGenreApi,
+            data: JSON.stringify(genreVal)
+        });
+    }
 
-        console.log(genreVal);
+    function eraseGenre() {
+        $('.ui.modal').modal('hide');
+        genreVal = {
+            "id": $('#id-genre').val(),
+            "name": $('#name-genre').val()
+        };
+        $.ajax({
+            url: '/api/genre/rm/' + genreVal.id,
+            type: 'get',
+            dataType: 'json',
+            //contentType: 'application/json',
+            success: onSuccessEraseNameGenre,
+            error: onErrorOnGenreApi,
+            // data: JSON.stringify(genreVal)
+        });
+    }
+
+    function updateGenre() {
+        $('.ui.modal').modal('hide');
+        genreVal = {
+            "id": $('#id-genre').val(),
+            "name": $('#name-genre').val()
+        };
         $.ajax({
             url: '/api/genre',
             type: 'post',
             dataType: 'json',
             contentType: 'application/json',
             success: onSuccessUpdateNameGenre,
-            error: onErrorOnUpdateNameGenre,
+            error: onErrorOnGenreApi,
             data: JSON.stringify(genreVal)
         });
+    }
 
-        // }else{
-        //     // console.log(genreId);
-        //     // console.log(genreName);
-        //     window.alert("Veuillez entrer un nom.");
-        // }
+    function onSuccessAddNameGenre(result){
+        var row = $('#rgenre-template').clone();
+        row.attr("id", 'rgenre'+result.id);
+        col = row.find('#genre-template');
+        col.attr("id", 'genre'+result.id);
+        col.text(result.name);
+        row.attr("onclick","openDialogMod(" + result.id +")");
+        $("#genre-body").append(row);
+        row.show();
+        /*
+        <tr id="rgenre-template"><td id="genre-template">un genre</td></tr>
+
+        <tr id="rgenre6" onclick="openDialogMod(6)">
+          <td id="genre6">Fantastique</td>
+      </tr>
+         */
 
     }
 
     function onSuccessUpdateNameGenre(result) {
-        console.log(result);
-        idElt = "#genre" + result.id;
-        newName = result.name
-        $(idElt).text(newName);
+        $("#genre" + result.id).text(result.name);
     }
 
 
-    function onErrorOnUpdateNameGenre(jqXHR, textStatus, errorThrown) {
+    function onErrorOnGenreApi(jqXHR, textStatus, errorThrown) {
         alert("Echec de l'opération de mise à jour...");
         console.log('jqXHR:');
         console.log(jqXHR);
-        console.log("message d'erreur: "+jqXHR.responseJSON.message);
+        console.log("message d'erreur: " + jqXHR.responseJSON.message);
         console.log('textStatus:');
         console.log(textStatus);
         console.log('errorThrown:');
         console.log(errorThrown);
     }
 
-    function eraseGenre() {
+
+    function onSuccessEraseNameGenre(result) {
+        $('#rgenre' + result.id).remove();
+    }
+
+    function exitDialog() {
         $('.ui.modal').modal('hide');
-        // console.log("Ecrire la méthode permettant de supprimer un genre");
-
-        genreVal = {
-            "id": document.getElementById('id-genre').value,
-            "name": document.getElementById('name-genre').value
-        };
-
-        console.log(genreVal);
-        $.ajax({
-            url: '/api/genre',
-            type: 'delete',
-            dataType: 'json',
-            contentType: 'application/json',
-            success: onSuccessDeleteGenre,
-            error: onErrorDeleteGenre,
-            data: JSON.stringify(genreVal)
-        });
     }
 
-    function onSuccessDeleteGenre(result) {
-
-        genreElt = document.getElementById( 'genre' + result.id );
-        console.log(genreElt);
-        genreParent = genreElt.parentNode;
-
-        if (genreParent) {
-            genreParent.parentNode.removeChild(genreParent);
-        }
-
-    }
-
-    function onErrorDeleteGenre(jqXHR, textStatus, errorThrown) {
-
-        alert("Echec de l'opération de suppression...");
-        console.log('jqXHR:');
-        console.log(jqXHR);
-        console.log("message d'erreur: "+jqXHR.responseJSON.message);
-        console.log('textStatus:');
-        console.log(textStatus);
-        console.log('errorThrown:');
-        console.log(errorThrown);
-
-    }
-    //
-    // function createNewGenre(){
-    //
-    // }
 
 </script>
 </body>

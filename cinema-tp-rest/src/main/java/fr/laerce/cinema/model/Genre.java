@@ -3,6 +3,7 @@ package fr.laerce.cinema.model;
 import org.checkerframework.common.aliasing.qual.Unique;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 /**
@@ -24,6 +25,7 @@ public class Genre {
      */
     @Basic
     @Unique
+    @Size(min = 3, max = 30, message = "La longueur du genre doit être comprise entre 3 et 30.")
     @Column(name = "name", nullable = false, length = 30)
     private String name;
 
